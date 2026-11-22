@@ -1,0 +1,6 @@
+El directorio game/libs/ está destinado a bibliotecas de terceros que piden
+ser colocadas en game/libs.
+
+Cuando este archivo (game/libs/libs.txt) está presente, Ren'Py cargará todos los archivos
+en libs antes que cualquier otro archivo en game/, e ignorará el primer nombre
+de directorio bajo game/libs al determinar el orden de carga de archivos.
