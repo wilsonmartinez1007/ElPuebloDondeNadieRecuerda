@@ -1,3 +1,7 @@
+init python:
+    import re
+
+
 # PERSONAJES
 
 define d = Character("Daniel", color="#A9C9DF")
@@ -137,9 +141,197 @@ label S04B:
     jump S05
 
 
+# =========================
+# S05 - EL PASILLO
+# =========================
+
 label S05:
 
     scene bg pasillo at fondo_completo
+    with fade
+
+    n "Daniel y Elena recorren un antiguo pasillo del archivo municipal."
+
+    n "Al fondo aparece Don Julián, el bibliotecario del pueblo."
+
+    j "No deberían estar buscando respuestas sobre aquel día."
+
+    d "¿Por qué? ¿Qué ocurrió realmente?"
+
+    j "Hay recuerdos que es mejor dejar enterrados."
+
+    e "Daniel, no le hagas caso. Hay algo más que necesitas saber."
+
+    menu:
+
+        "Confiar en Elena":
+
+            $ decision_02 = "elena"
+
+            jump S06A
+
+        "Confrontar a Don Julián":
+
+            $ decision_02 = "julian"
+
+            jump S06B
+
+label S06A:
+
+    scene bg pasillo at fondo_completo
+    with dissolve
+
+    e "Hay algo que recuerdo, aunque no consigo entenderlo."
+
+    e "Aquella noche escuché una campana."
+
+    e "Después apareció la niebla y todo se volvió confuso."
+
+    d "¿Una campana? ¿De dónde provenía?"
+
+    e "Creo que del archivo. Pero no estoy segura."
+
+    $ pista_02 = "recuerdo_elena"
+
+    n "Has obtenido una pista: el recuerdo fragmentado de Elena."
+
+    jump S07
+
+label S06B:
+
+    scene bg despacho at fondo_completo
+    with fade
+
+    j "Si realmente quieres saber la verdad, debes empezar por esto."
+
+    scene objeto libro at fondo_completo
+    with dissolve
+
+    n "Don Julián coloca un antiguo libro sobre el escritorio."
+
+    d "¿Qué significa esa campana en la portada?"
+
+    j "Es parte de una historia que este pueblo ha olvidado."
+
+    j "Busca el registro de aquella noche. Allí encontrarás algunas respuestas."
+
+    $ pista_02 = "libro"
+
+    n "Has obtenido una pista: el libro antiguo."
+
+    jump S07
+
+# =========================
+# S07 - INTRODUCIR FECHA
+# =========================
+
+label S07:
+
+    scene bg archivo at fondo_completo
+    with fade
+
+    n "Daniel encuentra el lugar donde se conservan los registros del pueblo."
+
+    d "Necesito encontrar el registro de aquella noche."
+
+    jump S07_busqueda
+
+
+label S07_busqueda:
+
+    scene bg archivo at fondo_completo
+
+    call screen buscar_fecha
+
+    if _return == "carta":
+
+        scene bg carta at fondo_completo
+        with dissolve
+
+        call screen carta_historia
+
+        jump S07_busqueda
+
+    $ fecha_ingresada = fecha_ingresada.strip()
+
+    if fecha_ingresada == "":
+
+        $ error_fecha = "vacia"
+
+        jump S08
+
+    elif not re.fullmatch(r"[0-9]{2}/[0-9]{2}/[0-9]{4}", fecha_ingresada):
+
+        $ error_fecha = "formato"
+
+        jump S08
+
+    elif fecha_ingresada != "17/10/2014":
+
+        $ error_fecha = "incorrecta"
+
+        jump S08
+
+    else:
+
+        jump S09
+
+
+# =========================
+# S08 - RECUPERACION
+# =========================
+
+label S08:
+
+    if error_fecha == "vacia":
+
+        $ mensaje_error = "Debes introducir una fecha antes de continuar."
+
+    elif error_fecha == "formato":
+
+        $ mensaje_error = "El formato es incorrecto. Utiliza DD/MM/AAAA."
+
+    else:
+
+        $ mensaje_error = "No se encontró un registro para la fecha ingresada."
+
+    call screen error_registro(mensaje_error)
+
+    if _return == "carta":
+
+        scene bg carta at fondo_completo
+        with dissolve
+
+        call screen carta_historia
+
+    jump S07_busqueda
+
+# =========================
+# S09 - REGISTRO ENCONTRADO
+# =========================
+
+label S09:
+
+    scene bg registro at fondo_completo
+    with fade
+
+    n "Registro encontrado: 17 de octubre de 2014."
+
+    d "Aquí está... la fecha de la carta."
+
+    n "Daniel examina cuidadosamente las anotaciones del registro."
+
+    d "Hay una referencia al sótano del archivo municipal."
+
+    e "Entonces debemos buscar allí."
+
+    n "El registro confirma la fecha y el lugar relacionados con los acontecimientos."
+
+    n "Sin embargo, todavía queda una pregunta por resolver."
+
+    d "¿Qué ocurrió realmente aquella noche?"
+
+    scene black
     with fade
 
     n "Continuará..."
