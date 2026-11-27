@@ -99,12 +99,33 @@ screen carta_historia():
                 text_color "#F1E5CD"
                 text_hover_color "#FFFFFF"
                 text_size 26
+init python:
+
+    def cambiar_dia(texto):
+        renpy.store.dia_ingresado = texto
+
+        if len(texto) == 2:
+            renpy.run(SetScreenVariable("campo_activo", "mes"))
+
+    def cambiar_mes(texto):
+        renpy.store.mes_ingresado = texto
+
+        if len(texto) == 2:
+            renpy.run(SetScreenVariable("campo_activo", "anio"))
+
+    def cambiar_anio(texto):
+        renpy.store.anio_ingresado = texto
 
 screen buscar_fecha():
 
     modal True
 
+    default campo_activo = "dia"
+
     add Solid("#00000088")
+
+    key "K_RETURN" action Return("buscar")
+    key "K_KP_ENTER" action Return("buscar")
 
     frame:
         align (0.5, 0.5)
@@ -133,26 +154,164 @@ screen buscar_fecha():
                 size 26
                 color "#F1E5CD"
 
-            null height 10
+            null height 15
 
-            text "Fecha (DD/MM/AAAA)":
+            hbox:
                 xalign 0.5
-                size 23
-                color "#C4A574"
+                spacing 25
 
-            frame:
+                # ====================
+                # DIA
+                # ====================
+
+                vbox:
+                    spacing 12
+
+                    text "Día":
+                        xalign 0.5
+                        size 24
+                        color "#C4A574"
+
+                    button:
+                        xsize 130
+                        ysize 85
+
+                        background Solid(
+                            "#796344" if campo_activo == "dia"
+                            else "#30271D"
+                        )
+
+                        hover_background Solid("#594831")
+
+                        action SetScreenVariable(
+                            "campo_activo", "dia"
+                        )
+
+                        if campo_activo == "dia":
+                            input:
+                                default dia_ingresado
+                                allow "0123456789"
+                                length 2
+                                size 35
+                                color "#F1E5CD"
+                                align (0.5, 0.5)
+                                changed cambiar_dia
+                        else:
+
+                            text (dia_ingresado or "DD"):
+                                align (0.5, 0.5)
+                                size 35
+                                color "#F1E5CD"
+
+                    text "DD":
+                        xalign 0.5
+                        size 18
+                        color "#A89B87"
+
+                # ====================
+                # MES
+                # ====================
+
+                vbox:
+                    spacing 12
+
+                    text "Mes":
+                        xalign 0.5
+                        size 24
+                        color "#C4A574"
+
+                    button:
+                        xsize 130
+                        ysize 85
+
+                        background Solid(
+                            "#796344" if campo_activo == "mes"
+                            else "#30271D"
+                        )
+
+                        hover_background Solid("#594831")
+
+                        action SetScreenVariable(
+                            "campo_activo", "mes"
+                        )
+
+                        if campo_activo == "mes":
+
+                            input:
+                                default mes_ingresado
+                                allow "0123456789"
+                                length 2
+                                size 35
+                                color "#F1E5CD"
+                                align (0.5, 0.5)
+                                changed cambiar_mes
+
+                        else:
+
+                            text (mes_ingresado or "MM"):
+                                align (0.5, 0.5)
+                                size 35
+                                color "#F1E5CD"
+
+                    text "MM":
+                        xalign 0.5
+                        size 18
+                        color "#A89B87"
+
+                # ====================
+                # AÑO
+                # ====================
+
+                vbox:
+                    spacing 12
+
+                    text "Año":
+                        xalign 0.5
+                        size 24
+                        color "#C4A574"
+
+                    button:
+                        xsize 200
+                        ysize 85
+
+                        background Solid(
+                            "#796344" if campo_activo == "anio"
+                            else "#30271D"
+                        )
+
+                        hover_background Solid("#594831")
+
+                        action SetScreenVariable(
+                            "campo_activo", "anio"
+                        )
+
+                        if campo_activo == "anio":
+
+                            input:
+                                default anio_ingresado
+                                allow "0123456789"
+                                length 4
+                                size 35
+                                color "#F1E5CD"
+                                align (0.5, 0.5)
+                                changed cambiar_anio
+
+                        else:
+
+                            text (anio_ingresado or "AAAA"):
+                                align (0.5, 0.5)
+                                size 35
+                                color "#F1E5CD"
+
+                    text "AAAA":
+                        xalign 0.5
+                        size 18
+                        color "#A89B87"
+
+            text "Escribe únicamente los números de la fecha.":
                 xalign 0.5
-                xsize 350
-                background Solid("#30271D")
-                padding (25, 18)
-
-                input:
-                    value VariableInputValue("fecha_ingresada")
-                    allow "0123456789/"
-                    length 10
-                    size 35
-                    color "#F1E5CD"
-                    xalign 0.5
+                size 20
+                color "#A89B87"
 
             null height 15
 

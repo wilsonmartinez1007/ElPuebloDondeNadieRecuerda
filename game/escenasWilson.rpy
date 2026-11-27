@@ -1,5 +1,6 @@
 init python:
     import re
+    from datetime import date
 
 
 # PERSONAJES
@@ -13,6 +14,9 @@ define n = Character(None)
 
 default decision_01 = ""
 default decision_02 = ""
+default dia_ingresado = ""
+default mes_ingresado = ""
+default anio_ingresado = ""
 
 default pista_01 = ""
 default pista_02 = ""
@@ -252,48 +256,70 @@ label S07_busqueda:
 
         jump S07_busqueda
 
-    $ fecha_ingresada = fecha_ingresada.strip()
-
-    if fecha_ingresada == "":
+    # Validar campos vacíos
+    if not dia_ingresado or not mes_ingresado or not anio_ingresado:
 
         $ error_fecha = "vacia"
 
         jump S08
 
-    elif not re.fullmatch(r"[0-9]{2}/[0-9]{2}/[0-9]{4}", fecha_ingresada):
+    # Validar longitud del año
+    if len(anio_ingresado) != 4:
 
         $ error_fecha = "formato"
 
         jump S08
 
-    elif fecha_ingresada != "17/10/2014":
+    # Validar que la fecha exista
+    python:
+        try:
+            fecha_validada = date(
+                int(anio_ingresado),
+                int(mes_ingresado),
+                int(dia_ingresado)
+            )
+
+            fecha_ingresada = fecha_validada.strftime("%d/%m/%Y")
+            fecha_valida = True
+
+        except ValueError:
+            fecha_valida = False
+
+    if not fecha_valida:
+
+        $ error_fecha = "invalida"
+
+        jump S08
+
+    # Comprobar la fecha del acontecimiento
+    if fecha_ingresada != "17/10/2014":
 
         $ error_fecha = "incorrecta"
 
         jump S08
 
-    else:
-
-        jump S09
-
+    jump S09
 
 # =========================
 # S08 - RECUPERACION
 # =========================
-
 label S08:
 
     if error_fecha == "vacia":
 
-        $ mensaje_error = "Debes introducir una fecha antes de continuar."
+        $ mensaje_error = "Completa los campos de día, mes y año."
 
     elif error_fecha == "formato":
 
-        $ mensaje_error = "El formato es incorrecto. Utiliza DD/MM/AAAA."
+        $ mensaje_error = "El año debe contener cuatro dígitos."
+
+    elif error_fecha == "invalida":
+
+        $ mensaje_error = "La fecha introducida no es válida. Revisa el día, el mes y el año."
 
     else:
 
-        $ mensaje_error = "No se encontró un registro para la fecha ingresada."
+        $ mensaje_error = "No se encontró un registro para esa fecha."
 
     call screen error_registro(mensaje_error)
 
@@ -305,7 +331,6 @@ label S08:
         call screen carta_historia
 
     jump S07_busqueda
-
 # =========================
 # S09 - REGISTRO ENCONTRADO
 # =========================
@@ -331,9 +356,4 @@ label S09:
 
     d "¿Qué ocurrió realmente aquella noche?"
 
-    scene black
-    with fade
-
-    n "Continuará..."
-
-    return
+    jump s10
